@@ -14,7 +14,11 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+Route::prefix('v1')->group(function(){
+
 /**
  * Registration Routes
  */
-Route::middleware('auth:api')->post('/register', 'Api\Auth\RegisterController@register');
+Route::post('/register', 'Api\v1\Auth\RegisterController@register')->name('register');
+
+});

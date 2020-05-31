@@ -6,8 +6,9 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Hash;
-use OwenIt\Auditing\Contracts\Auditable;
 
+use OwenIt\Auditing\Contracts\Auditable;
+use Tymon\JWTAuth\Contracts\JWTSubject;
 
 class User extends Authenticatable implements Auditable
 {
@@ -23,6 +24,12 @@ class User extends Authenticatable implements Auditable
     protected $casts = ['email_verified_at' => 'datetime',];
 
     
+    /**
+     * Tag User as active
+     *
+     * @param User $user
+     * @return void
+     */
     public function approvedUser(User $user)
     {
         $user->is_active = true;
@@ -31,6 +38,7 @@ class User extends Authenticatable implements Auditable
     }
 
     
+
     /**
      * Automatically hash the password
      * 
@@ -44,6 +52,28 @@ class User extends Authenticatable implements Auditable
         }
 
         $this->attributes['password'] = Hash::make($password);
+    }
+
+
+
+    /**
+     * Get the identifier that will be stored in the subject claim of the JWT.
+     *
+     * @return mixed
+     */
+    public function getJWTIdentifier()
+    {
+        return $this->getKey();
+    }
+
+    /**
+     * Return a key value array, containing any custom claims to be added to the JWT.
+     *
+     * @return array
+     */
+    public function getJWTCustomClaims()
+    {
+        return [];
     }
 
 }
