@@ -15,6 +15,18 @@ class RegisterController extends Controller
         //$this->middleware('guest');
     }
 
+
+    public function register(Request $request)
+    {   
+        $validateData = $this->validateRequest();
+        
+        event(new Registered($user = $this->create($validateData)));
+        
+        return $request->wantsJson()
+                    ? new Response(['message' => 'Successfully created user!'], 201)
+                    : redirect($this->redirectPath());
+    }
+    
     
     protected function validateRequest()
     {   
@@ -40,17 +52,6 @@ class RegisterController extends Controller
             'created_user_id' => 1,
             'updated_user_id' => 1,
         ]);
-    }
-
-    public function register(Request $request)
-    {   
-        $validateData = $this->validateRequest();
-        
-        event(new Registered($user = $this->create($validateData)));
-        
-        return $request->wantsJson()
-                    ? new Response(['message' => 'Successfully created user!'], 201)
-                    : redirect($this->redirectPath());
-    }
+    }    
     
 }

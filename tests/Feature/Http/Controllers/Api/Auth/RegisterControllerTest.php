@@ -79,7 +79,7 @@ class RegisterControllerTest extends TestCase
             ]);
         
         $user = User::all();
-
+        
         $response->assertStatus(422);
         $response->assertJsonValidationErrors('email');
         $this->assertCount(1, $user);

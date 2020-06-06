@@ -16,9 +16,12 @@ use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function(){
 
-/**
- * Registration Routes
- */
-Route::post('/register', 'Api\v1\Auth\RegisterController@register')->name('register');
+    /** 
+     * Registration/Login Routes      
+     */
+    Route::post('/register', 'Api\v1\Auth\RegisterController@register')->name('register');
+    Route::post('/login', 'Api\v1\Auth\LoginController@login')->name('login');
+    Route::post('/logout', 'Api\v1\Auth\LoginController@logout')->name('logout');
+    Route::post('/logout/passwordrecover', 'Api\v1\Auth\LoginController@passwordRecover')->name('passwordrecover');
 
 });
