@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\v1\Auth;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Foundation\Auth\ThrottlesLogins;
+use Illuminate\Support\Facades\Auth;
 
 class LoginController extends Controller
 {
@@ -15,9 +16,16 @@ class LoginController extends Controller
     public function login(Request $request)
     {   
         $this->validateLogin($request);
-
-        if ($this->guard()->attempt($this->credentials($request), $request->filled('remember'))) {
-            return $this->sendLoginResponse($request);
+        
+        /* if (Auth::attempt($request->only(['email', 'password']))) {
+            return response(["success" => true], 200);
+        } else {
+            return response(["success" => false], 403);
+        } */
+        if ($this->guard()->attempt($request->only($this->username(), 'password'), $request->filled('remember'))) {
+            return response(["success" => true], 200);
+        } else {
+            return response(["success" => false], 403);
         }
     }
 
@@ -34,5 +42,15 @@ class LoginController extends Controller
     public function username()
     {
         return $this->loginThrough;
+    }
+
+    /**
+     * Get the guard to be used during authentication.
+     *
+     * @return \Illuminate\Contracts\Auth\StatefulGuard
+     */
+    protected function guard()
+    {
+        return Auth::guard();
     }
 }
