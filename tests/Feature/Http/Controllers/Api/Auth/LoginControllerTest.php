@@ -2,23 +2,22 @@
 
 namespace Tests\Feature\Http\Controllers\Api\Auth;
 
+
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 
 class LoginControllerTest extends TestCase
 {  
-    use WithFaker;
-    /** @test **/
-    public function user_can_login()
-    {    
-        $this->withoutExceptionHandling();
+    use RefreshDatabase;
 
-        //register first
-        $response = $this->withHeaders([
-                'Accept' => 'application/json',
-                'HTTP_X_REQUESTED_WITH' => 'XMLHttpRequest'
-            ])->json('POST',route('register'), [
+    public function setUp():void
+    {
+        parent::setUp();
+
+        $this->withHeaders([
+            'Accept' => 'application/json',
+            'HTTP_X_REQUESTED_WITH' => 'XMLHttpRequest'
+        ])->json('POST',route('register'), [
             'first_name' => 'Markus',
             'last_name' => 'Corvinus',
             'email' => 'mcorvinus@admin.com',
@@ -28,18 +27,43 @@ class LoginControllerTest extends TestCase
             'created_user_id' => 1,
             'updated_user_id' => 1,
         ]);
-        
-        //attempt to login
+    }
+
+
+    /** @test **/
+    public function user_can_login()
+    {   
+        // attempt to login (X-XSRF-TOKEN is required in login headers)
         $response = $this->withHeaders([
             'Accept' => 'application/json',
-            'HTTP_X_REQUESTED_WITH' => 'XMLHttpRequest'
+            'HTTP_X_REQUESTED_WITH' => 'XMLHttpRequest',
+            'X-XSRF-TOKEN' => 'eyJpdiI6IkhoRnNoYWNTU3JaS01ma3BDQ0hyT0E9PSIsInZhbHVlIjoiZjZkYmIwUjA3anJ0RmlianM5SmpJNzllVFA0MnR0bWFQQXhYZXpyYVBQb1UzUzhPRVBzWi90L1FvbXdRQnpubSIsIm1hYyI6ImQwZTZmZDRiYzZlZTU5YTQxNjQ0NzkxMzg2ZDVlMmQyMzM5MTFmYzdkZWM5ODAyMWRkZTYzNzE5ZmYxMjI0NzQifQ=='
         ])->json('POST',route('login'), [
             'email' => 'mcorvinus@admin.com',
             'password' => 'password',
         ]);
         //dd($response->content);
-        //$response->assertStatus(200);
-        //$response->assertOk();
+        $response->assertStatus(200);
+        $response->assertOk();
+        $response->assertJson(["status" => "success"]);
 
+    }
+
+    /** @test **/
+    public function throws_an_error_if_authentication_failed()
+    {    
+        // attempt to login (X-XSRF-TOKEN is required in login headers)
+        $response = $this->withHeaders([
+            'Accept' => 'application/json',
+            'HTTP_X_REQUESTED_WITH' => 'XMLHttpRequest',
+            'X-XSRF-TOKEN' => 'eyJpdiI6IkhoRnNoYWNTU3JaS01ma3BDQ0hyT0E9PSIsInZhbHVlIjoiZjZkYmIwUjA3anJ0RmlianM5SmpJNzllVFA0MnR0bWFQQXhYZXpyYVBQb1UzUzhPRVBzWi90L1FvbXdRQnpubSIsIm1hYyI6ImQwZTZmZDRiYzZlZTU5YTQxNjQ0NzkxMzg2ZDVlMmQyMzM5MTFmYzdkZWM5ODAyMWRkZTYzNzE5ZmYxMjI0NzQifQ=='
+        ])->json('POST',route('login'), [
+            'email' => 'mcorvinus@admin.com',
+            'password' => 'password123',
+        ]);
+        //dd($response->content);
+        $response->assertStatus(401);
+        $response->assertJson(["status" => "failed"]);
+            
     }
 }

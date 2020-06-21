@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Foundation\Auth\ThrottlesLogins;
 use Illuminate\Support\Facades\Auth;
+use App\Helpers\ResponseBuilder;
 
 class LoginController extends Controller
 {
@@ -15,17 +16,16 @@ class LoginController extends Controller
 
     public function login(Request $request)
     {   
+        /* if(!$request->secure()){
+            return response(["success" => false, "message" => "Invalid Request! Request must be secure" ], 403);
+        } */
         $this->validateLogin($request);
         
-        /* if (Auth::attempt($request->only(['email', 'password']))) {
-            return response(["success" => true], 200);
-        } else {
-            return response(["success" => false], 403);
-        } */
         if ($this->guard()->attempt($request->only($this->username(), 'password'), $request->filled('remember'))) {
-            return response(["success" => true], 200);
+            $user = Auth::user();
+            return response()->json(ResponseBuilder::generate_response("success",200,"Login successful!", $user->only(['id','full_name'])), 200);
         } else {
-            return response(["success" => false], 403);
+            return response(ResponseBuilder::generate_response("failed",401,"Incorrect username or password"), 401);
         }
     }
 

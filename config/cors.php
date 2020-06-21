@@ -15,8 +15,11 @@ return [
     |
     */
 
-    'paths' => ['http://api.lighthouse.test/v1/*','/sanctum/csrf-cookie', '/v1/login'],
-
+    'paths' => ['/v1/*',
+        '/sanctum/csrf-cookie',
+        '/v1/login',
+        
+    ],
     'allowed_methods' => ['*'],
 
     'allowed_origins' => ['*'],
